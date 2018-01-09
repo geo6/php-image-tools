@@ -139,7 +139,7 @@ class Image
                 $newWidth = $this->width / $this->height * $newHeight;
             }
 
-            $thumbnail = new self((int)$newWidth, (int)$newHeight);
+            $thumbnail = new self((int) $newWidth, (int) $newHeight);
             $thumbnail->type = $this->type;
 
             imagecopyresampled($thumbnail->resource, $this->resource, 0, 0, 0, 0, $thumbnail->width, $thumbnail->height, $this->width, $this->height);
