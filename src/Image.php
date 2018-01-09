@@ -1,19 +1,63 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the GEO-6 package.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license    GNU General Public License v3.0
+ */
+
 namespace Geo6\Image;
 
 use ErrorException;
 
+/**
+ * @author Jonathan Beliën <jbe@geo6.be>
+ */
 class Image
 {
+    /**
+     * @var string|null
+     */
     private $file = null;
+
+    /**
+     * @var int
+     */
     private $height;
+
+    /**
+     * @var resource
+     */
     private $resource;
+
+    /**
+     * @var int|null
+     */
     private $type = null;
+
+    /**
+     * @var string|null
+     */
     private $sourceFile = null;
+
+    /**
+     * @var string|null
+     */
     private $tempnam = null;
+
+    /**
+     * @var int
+     */
     private $width;
 
+    /**
+     * @param int $width
+     * @param int $height
+     */
     public function __construct(int $width, int $height)
     {
         $this->height = $height;
@@ -30,6 +74,14 @@ class Image
         }
     }
 
+    /**
+     * @param string $file Path to your file.
+     *
+     * @throws ErrorException if the file does not exists or is not readable.
+     * @throws ErrorException if the type of the file is not supported.
+     *
+     * @return Image
+     */
     public static function createFromFile(string $file)
     {
         if (file_exists($file) && is_readable($file)) {
@@ -71,6 +123,11 @@ class Image
         return $new;
     }
 
+    /**
+     * @param int $maxSize Mix width and height (in pixels).
+     *
+     * @return Image
+     */
     public function thumbnail(int $maxSize)
     {
         if (max($this->width, $this->height) > $maxSize) {
@@ -94,6 +151,8 @@ class Image
     }
 
     /**
+     * @return Image
+     *
      * @link http://owl.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
      * @link http://sylvana.net/jpegcrop/exif_orientation.html
      */
@@ -148,6 +207,11 @@ class Image
         return $rotated;
     }
 
+    /**
+     * @param string $file Path (including filename) where you want to save your image.
+     *
+     * @return bool
+     */
     public function save(string $file)
     {
         if (file_exists($file) && is_dir($file)) {
@@ -190,6 +254,9 @@ class Image
         return $result;
     }
 
+    /**
+     *
+     */
     public function display()
     {
         if (is_null($this->file)) {
