@@ -69,7 +69,7 @@ class Image
     {
         imagedestroy($this->resource);
 
-        if (file_exists($this->tempnam)) {
+        if (!is_null($this->tempnam) && file_exists($this->tempnam)) {
             unlink($this->tempnam);
         }
     }
