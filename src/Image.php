@@ -67,7 +67,9 @@ class Image
 
     public function __destruct()
     {
-        imagedestroy($this->resource);
+        if (is_resource($this->resource) && get_resource_type($this->resource) === 'gd') {
+            imagedestroy($this->resource);
+        }
 
         if (!is_null($this->tempnam) && file_exists($this->tempnam)) {
             unlink($this->tempnam);
