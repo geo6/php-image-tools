@@ -60,14 +60,19 @@ class Image
      */
     public function __construct(int $width, int $height)
     {
+        $resource = imagecreatetruecolor($width, $height);
+        if ($resource === false) {
+            throw new ErrorException('Cannot initialize new GD image stream.');
+        }
+
         $this->height = $height;
-        $this->resource = imagecreatetruecolor($width, $height);
+        $this->resource = $resource;
         $this->width = $width;
     }
 
     public function __destruct()
     {
-        if (is_resource($this->resource) && get_resource_type($this->resource) === 'gd') {
+        if (get_resource_type($this->resource) === 'gd') {
             imagedestroy($this->resource);
         }
 
@@ -84,7 +89,7 @@ class Image
      *
      * @return Image
      */
-    public static function createFromFile(string $file)
+    public static function createFromFile(string $file) : self
     {
         if (file_exists($file) && is_readable($file)) {
             list($width, $height, $type) = getimagesize($file);
@@ -97,22 +102,52 @@ class Image
 
             switch ($new->type) {
                 case IMAGETYPE_BMP:
-                    $new->resource = imagecreatefrombmp($file);
+                    $resource = imagecreatefrombmp($file);
+                    if ($resource === false) {
+                        throw new ErrorException('Cannot initialize new GD image stream.');
+                    }
+
+                    $new->resource = $resource;
                     break;
                 case IMAGETYPE_GIF:
-                    $new->resource = imagecreatefromgif($file);
+                    $resource = imagecreatefromgif($file);
+                    if ($resource === false) {
+                        throw new ErrorException('Cannot initialize new GD image stream.');
+                    }
+
+                    $new->resource = $resource;
                     break;
                 case IMAGETYPE_JPEG:
-                    $new->resource = imagecreatefromjpeg($file);
+                    $resource = imagecreatefromjpeg($file);
+                    if ($resource === false) {
+                        throw new ErrorException('Cannot initialize new GD image stream.');
+                    }
+
+                    $new->resource = $resource;
                     break;
                 case IMAGETYPE_PNG:
-                    $new->resource = imagecreatefrompng($file);
+                    $resource = imagecreatefrompng($file);
+                    if ($resource === false) {
+                        throw new ErrorException('Cannot initialize new GD image stream.');
+                    }
+
+                    $new->resource = $resource;
                     break;
                 case IMAGETYPE_WBMP:
-                    $new->resource = imagecreatefromwbmp($file);
+                    $resource = imagecreatefromwbmp($file);
+                    if ($resource === false) {
+                        throw new ErrorException('Cannot initialize new GD image stream.');
+                    }
+
+                    $new->resource = $resource;
                     break;
                 case IMAGETYPE_WEBP:
-                    $new->resource = imagecreatefromwebp($file);
+                    $resource = imagecreatefromwebp($file);
+                    if ($resource === false) {
+                        throw new ErrorException('Cannot initialize new GD image stream.');
+                    }
+
+                    $new->resource = $resource;
                     break;
                 default:
                     throw new ErrorException(sprintf('Type "%s" is not supported.', image_type_to_mime_type($type)));
@@ -130,7 +165,7 @@ class Image
      *
      * @return Image
      */
-    public function thumbnail(int $maxSize)
+    public function thumbnail(int $maxSize) : self
     {
         if (max($this->width, $this->height) > $maxSize) {
             if (max($this->width, $this->height) === $this->width && $this->width > $maxSize) {
@@ -144,7 +179,18 @@ class Image
             $thumbnail = new self((int) $newWidth, (int) $newHeight);
             $thumbnail->type = $this->type;
 
-            imagecopyresampled($thumbnail->resource, $this->resource, 0, 0, 0, 0, $thumbnail->width, $thumbnail->height, $this->width, $this->height);
+            imagecopyresampled(
+                $thumbnail->resource,
+                $this->resource,
+                0,
+                0,
+                0,
+                0,
+                $thumbnail->width,
+                $thumbnail->height,
+                $this->width,
+                $this->height
+            );
         } else {
             $thumbnail = clone $this;
         }
@@ -158,9 +204,16 @@ class Image
      * @link http://owl.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html
      * @link http://sylvana.net/jpegcrop/exif_orientation.html
      */
-    public function EXIFRotate()
+    public function EXIFRotate() : self
     {
+        if (is_null($this->file)) {
+            throw new ErrorException('File must be defined before using EXIFRotate() function.');
+        }
+
         $exif = @exif_read_data($this->file);
+        if ($exif === false) {
+            throw new ErrorException('Unable to read EXIF headers.');
+        }
 
         $rotated = new self($this->width, $this->height);
         $rotated->type = $this->type;
@@ -214,9 +267,9 @@ class Image
      *
      * @return bool
      */
-    public function save(string $file)
+    public function save(string $file) : bool
     {
-        if (file_exists($file) && is_dir($file)) {
+        if (file_exists($file) && is_dir($file) && !is_null($this->file)) {
             if (substr($file, -1) !== '/') {
                 $file .= '/';
             }
@@ -256,11 +309,20 @@ class Image
         return $result;
     }
 
-    public function display()
+    public function display() : void
     {
         if (is_null($this->file)) {
-            $this->tempnam = tempnam(sys_get_temp_dir(), 'php_image_');
+            $temp = tempnam(sys_get_temp_dir(), 'php_image_');
+            if ($temp === false) {
+                throw new ErrorException('Unable to create temporary file.');
+            }
+
+            $this->tempnam = $temp;
             $this->save($this->tempnam);
+        }
+
+        if (is_null($this->file) || is_null($this->type)) {
+            throw new ErrorException('File (and type) must be defined before using displaying file.');
         }
 
         clearstatcache(true, $this->file);

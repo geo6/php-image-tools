@@ -1,20 +1,33 @@
 {
   "name": "geo6/php-image-tools",
-  "description": "PHP Library that provides tools for image processing (thumbnail, EXIF rotation, ...)",
   "type": "library",
-  "license": "GPL-3.0",
+  "description": "PHP Library that provides tools for image processing (thumbnail, EXIF rotation, ...)",
+  "license": "GPL-3.0-or-later",
+  "require": {
+    "php": "^7.2",
+    "ext-gd": "*",
+    "ext-mbstring": "*"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^0.10.6",
+    "phpstan/phpstan-strict-rules": "^0.10.1",
+    "squizlabs/php_codesniffer": "^3.3"
+  },
+  "config": {
+    "sort-packages": true
+  },
   "autoload": {
     "psr-4": {
       "Geo6\\Image\\": "src/"
     }
   },
-  "authors": [
-    {
-        "name": "Jonathan Beliën",
-        "email": "jbe@geo6.be"
-    }
-  ],
-  "require": {
-    "php": "^7.2"
+  "scripts": {
+    "analyze": "phpstan analyze -l max -c ./phpstan.installer.neon ./src",
+    "check": [
+      "@cs-check",
+      "@analyze"
+    ],
+    "cs-check": "phpcs",
+    "cs-fix": "phpcbf"
   }
 }
