@@ -192,7 +192,19 @@ class Image
                 $this->height
             );
         } else {
-            $thumbnail = clone $this;
+            $thumbnail = new self($this->width, $this->height);
+            $thumbnail->type = $this->type;
+
+            imagecopy(
+                $thumbnail->resource,
+                $this->resource,
+                0,
+                0,
+                0,
+                0,
+                $this->width,
+                $this->height
+            );
         }
 
         return $thumbnail;
