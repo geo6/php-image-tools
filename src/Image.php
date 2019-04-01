@@ -212,54 +212,54 @@ class Image
 
         $exif = @exif_read_data($this->file);
         if ($exif === false) {
-            throw new ErrorException('Unable to read EXIF headers.');
-        }
+            return $this;
+        } else {
+            $rotated = new self($this->width, $this->height);
+            $rotated->type = $this->type;
 
-        $rotated = new self($this->width, $this->height);
-        $rotated->type = $this->type;
+            imagecopy($rotated->resource, $this->resource, 0, 0, 0, 0, $rotated->width, $rotated->height);
 
-        imagecopy($rotated->resource, $this->resource, 0, 0, 0, 0, $rotated->width, $rotated->height);
+            $height = $rotated->height;
+            $width = $rotated->width;
 
-        $height = $rotated->height;
-        $width = $rotated->width;
-
-        if (isset($exif['Orientation']) && intval($exif['Orientation']) > 1) {
-            switch (intval($exif['Orientation'])) {
-                case 2: // 2 = Mirror horizontal
-                    imageflip($rotated->resource, IMG_FLIP_HORIZONTAL);
-                    break;
-                case 3: // 3 = Rotate 180 CW
-                    $rotated->resource = imagerotate($rotated->resource, -180, 0);
-                    break;
-                case 4: // 4 = Mirror vertical
-                    imageflip($rotated->resource, IMG_FLIP_VERTICAL);
-                    break;
-                case 5: // 5 = Mirror horizontal and rotate 270 CW
-                    imageflip($rotated->resource, IMG_FLIP_HORIZONTAL);
-                    $rotated->resource = imagerotate($rotated->resource, -270, 0);
-                    $rotated->height = $width;
-                    $rotated->width = $height;
-                    break;
-                case 6: // 6 = Rotate 90 CW
-                    $rotated->resource = imagerotate($rotated->resource, -90, 0);
-                    $rotated->height = $width;
-                    $rotated->width = $height;
-                    break;
-                case 7: // 7 = Mirror horizontal and rotate 90 CW
-                    imageflip($rotated->resource, IMG_FLIP_HORIZONTAL);
-                    $rotated->resource = imagerotate($rotated->resource, -90, 0);
-                    $rotated->height = $width;
-                    $rotated->width = $height;
-                    break;
-                case 8: // 8 = Rotate 270 CW
-                    $rotated->resource = imagerotate($rotated->resource, -270, 0);
-                    $rotated->height = $width;
-                    $rotated->width = $height;
-                    break;
+            if (isset($exif['Orientation']) && intval($exif['Orientation']) > 1) {
+                switch (intval($exif['Orientation'])) {
+                    case 2: // 2 = Mirror horizontal
+                        imageflip($rotated->resource, IMG_FLIP_HORIZONTAL);
+                        break;
+                    case 3: // 3 = Rotate 180 CW
+                        $rotated->resource = imagerotate($rotated->resource, -180, 0);
+                        break;
+                    case 4: // 4 = Mirror vertical
+                        imageflip($rotated->resource, IMG_FLIP_VERTICAL);
+                        break;
+                    case 5: // 5 = Mirror horizontal and rotate 270 CW
+                        imageflip($rotated->resource, IMG_FLIP_HORIZONTAL);
+                        $rotated->resource = imagerotate($rotated->resource, -270, 0);
+                        $rotated->height = $width;
+                        $rotated->width = $height;
+                        break;
+                    case 6: // 6 = Rotate 90 CW
+                        $rotated->resource = imagerotate($rotated->resource, -90, 0);
+                        $rotated->height = $width;
+                        $rotated->width = $height;
+                        break;
+                    case 7: // 7 = Mirror horizontal and rotate 90 CW
+                        imageflip($rotated->resource, IMG_FLIP_HORIZONTAL);
+                        $rotated->resource = imagerotate($rotated->resource, -90, 0);
+                        $rotated->height = $width;
+                        $rotated->width = $height;
+                        break;
+                    case 8: // 8 = Rotate 270 CW
+                        $rotated->resource = imagerotate($rotated->resource, -270, 0);
+                        $rotated->height = $width;
+                        $rotated->width = $height;
+                        break;
+                }
             }
-        }
 
-        return $rotated;
+            return $rotated;
+        }
     }
 
     /**
