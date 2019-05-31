@@ -5,6 +5,8 @@
 [![Monthly Downloads](https://poser.pugx.org/geo6/php-image-tools/d/monthly.png)](https://packagist.org/packages/geo6/php-image-tools)
 [![Software License](https://img.shields.io/badge/license-GPL--3.0-brightgreen.svg)](LICENSE)
 
+> This package is **abandoned** and no longer maintained. The author suggests using the [intervention/image](https://packagist.org/packages/intervention/image) package instead. 
+
 ## Install
 
 ```shell
